@@ -6,7 +6,8 @@
   become: true # switch to root to perform the install
   tasks: # list of the tasks that we want to perform
 
-  - name: Update repository index
+# Ubuntu
+  - name: Update apt
     apt:
       update_cache: yes
     when: ansible_distribution in ["Debian", "Ubuntu"] # only run this play when the distribution is debian/ubuntu
@@ -17,8 +18,26 @@
       state: latest # specifying that we want to install the latest version of the package
     when: ansible_distribution in ["Debian", "Ubuntu"]
 
-  - name: Add php support for apache
+  - name: Add php support for apache2
     apt:
       name: libapache2-mod-php
       state: latest
     when: ansible_distribution in ["Debian", "Ubuntu"]
+
+# CentOS
+  - name: Update dnf
+    dnf:
+      update_cache: yes
+    when: ansible_distribution in ["CentOS"] # only run this play when the distribution is CentOS
+
+  - name: Install httpd
+    dnf:
+      name: httpd # name of the package we want to install
+      state: latest # specifying that we want to install the latest version of the package
+    when: ansible_distribution in ["CentOS"]
+
+  - name: Install php
+    dnf:
+      name: php
+      state: latest
+    when: ansible_distribution in ["CentOS"]
