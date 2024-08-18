@@ -1,0 +1,17 @@
+---
+# This playbook removes the installation of the apache server
+
+# specifies that we want to run this on all the hosts
+- hosts: all
+  become: true # switch to root to perform the install
+  tasks: # list of the tasks that we want to perform
+
+  - name: Remove the apache package
+    apt:
+      name: apache2
+      state: absent # absent implies we do not want it on our system. Ansible then takes steps to remove it from our system if it is found on it.
+
+  - name: Remove php support for apache
+    apt:
+      name: libapache2-mod-php
+      state: absent

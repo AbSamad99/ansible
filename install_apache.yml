@@ -1,0 +1,21 @@
+---
+# This playbook performs installation of the apache server
+
+# specifies that we want to run this on all the hosts
+- hosts: all
+  become: true # switch to root to perform the install
+  tasks: # list of the tasks that we want to perform
+
+  - name: Update repository index
+    apt:
+      update_cache: yes
+
+  - name: Install the apache2 package
+    apt:
+      name: apache2 # name of the package we want to install
+      state: latest # specifying that we want to install the latest version of the package
+
+  - name: Add php support for apache
+    apt:
+      name: libapache2-mod-php
+      state: latest
