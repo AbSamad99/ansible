@@ -10,8 +10,10 @@
     apt:
       name: apache2
       state: absent # absent implies we do not want it on our system. Ansible then takes steps to remove it from our system if it is found on it.
+    when: ansible_distribution in ["Debian", "Ubuntu"]
 
   - name: Remove php support for apache
     apt:
       name: libapache2-mod-php
       state: absent
+    when: ansible_distribution in ["Debian", "Ubuntu"]

@@ -9,13 +9,16 @@
   - name: Update repository index
     apt:
       update_cache: yes
+    when: ansible_distribution in ["Debian", "Ubuntu"] # only run this play when the distribution is debian/ubuntu
 
   - name: Install the apache2 package
     apt:
       name: apache2 # name of the package we want to install
       state: latest # specifying that we want to install the latest version of the package
+    when: ansible_distribution in ["Debian", "Ubuntu"]
 
   - name: Add php support for apache
     apt:
       name: libapache2-mod-php
       state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]
