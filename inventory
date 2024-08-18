@@ -1,0 +1,5 @@
+# This file contains a list of ip address or domain names of the machines that we have. we can even group them as you see below
+
+[servers]
+192.168.76.10
+192.168.76.11
