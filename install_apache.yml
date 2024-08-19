@@ -1,5 +1,5 @@
 ---
-# This playbook performs installation of the apache server
+# This is a consolidated playbook where we reduced the number of plays from 6 to 2
 
 # specifies that we want to run this on all the hosts
 - hosts: all
@@ -7,37 +7,22 @@
   tasks: # list of the tasks that we want to perform
 
 # Ubuntu
-  - name: Update apt
+  - name: Install the apache2 and php support package
     apt:
-      update_cache: yes
-    when: ansible_distribution in ["Debian", "Ubuntu"] # only run this play when the distribution is debian/ubuntu
-
-  - name: Install the apache2 package
-    apt:
-      name: apache2 # name of the package we want to install
-      state: latest # specifying that we want to install the latest version of the package
-    when: ansible_distribution in ["Debian", "Ubuntu"]
-
-  - name: Add php support for apache2
-    apt:
-      name: libapache2-mod-php
-      state: latest
+      name: # List of the packages that we want to install
+        - apache2
+        - libapache2-mod-php 
+      state: latest # specifying that we want to install the latest version of the package.
+      update_cache: true # specifying that we want ot update the repository as well.
     when: ansible_distribution in ["Debian", "Ubuntu"]
 
 # CentOS
-  - name: Update dnf
+  - name: Install httpd and php
     dnf:
-      update_cache: yes
-    when: ansible_distribution in ["CentOS"] # only run this play when the distribution is CentOS
-
-  - name: Install httpd
-    dnf:
-      name: httpd # name of the package we want to install
-      state: latest # specifying that we want to install the latest version of the package
-    when: ansible_distribution in ["CentOS"]
-
-  - name: Install php
-    dnf:
-      name: php
+      name: 
+        - httpd
+        - php
       state: latest
+      update_cache: true 
     when: ansible_distribution in ["CentOS"]
+
