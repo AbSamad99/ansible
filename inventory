@@ -1,6 +1,8 @@
 # This file contains a list of ip address or domain names of the machines that we have. we can even group them as you see below
 
-[servers]
+[web_servers]
 192.168.76.10
-192.168.76.11
 192.168.76.12
+
+[db_servers]
+192.168.76.11

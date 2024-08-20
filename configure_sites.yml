@@ -1,0 +1,59 @@
+---
+# This playbook introduces tags so that we can target specific task that we want to run
+
+# specifies that we want to run this on all the hosts
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Update apt repository
+    tags: always # A tag specifying that we want to run this everytime.
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+  - name: Update dnf repository
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution in ["CentOS"]
+
+- hosts: web_servers # we only want to run this on the web_servers group
+  become: true
+  tasks:
+
+  - name: Install apache2 and php support (Ubuntu)
+    tags: ubuntu,apache,apache2
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+  - name: Install httpd and php
+    tags: centos,apache,httpd
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution in ["CentOS"]
+
+- hosts: db_servers # Only run this for db_servers group
+  become: true
+  tasks:
+  - name: Install mariadb (Debian)
+    tags: ubuntu,db,mariadb
+    apt:
+      name: mariadb-server
+      state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+# To list the tags in the playbook: ansible-playbook --list-tags playbook-name.yml
+# To target a specific tag: ansible-playbook --tags ubuntu --ask-become-pass playbook-name.yml
+# To target multiple tags: ansible-playbook --tags "ubuntu,centos" --ask-become-pass playbook-name.yml
+# NOTE: 1) All tasks with tag 'always' will always run
+#       2) You cannot have space between the tags when selecting multiple tags

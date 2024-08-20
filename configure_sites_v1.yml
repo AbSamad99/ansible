@@ -1,0 +1,50 @@
+---
+# This playbook has one common play and then different plays for different groups
+
+# specifies that we want to run this on all the hosts
+- hosts: all
+  become: true # switch to root to perform the install
+  pre_tasks: # specifies that we want to execute these tasks before all other tasks
+
+# Ubuntu
+  - name: Update apt repository
+    apt:
+      upgrade: dist
+      update_cache: yes # specifying that we want ot update the repository as well.
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+# CentOS
+  - name: Update dnf repository
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution in ["CentOS"]
+
+- hosts: web_servers # we only want to run this on the web_servers group
+  become: true
+  tasks:
+
+  - name: Install apache2 and php support (Debian)
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+  - name: Install httpd and php
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution in ["CentOS"]
+
+- hosts: db_servers # Only run this for db_servers group
+  become: true
+  tasks:
+  - name: Install mariadb (Debian)
+    apt:
+      name: mariadb-server
+      state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]

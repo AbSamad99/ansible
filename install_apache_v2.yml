@@ -1,5 +1,5 @@
 ---
-# This is a consolidated playbook where we reduced the number of plays from 6 to 2
+# This is a consolidated playbook where we reduced the number of tasks from 6 to 2
 
 # specifies that we want to run this on all the hosts
 - hosts: all

@@ -1,5 +1,5 @@
 ---
-# Inefficient playbook having 6 plays
+# Inefficient playbook having 6 tasks
 
 # specifies that we want to run this on all the hosts
 - hosts: all
@@ -41,3 +41,6 @@
       name: php
       state: latest
     when: ansible_distribution in ["CentOS"]
+
+# To run the playbook: ansible-playbook --ask-become-pass playbook-name.yml
+# NOTE: the option '--ask-become-pass' is needed to log in as sudo/root
