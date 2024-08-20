@@ -1,5 +1,5 @@
 ---
-# This playbook has sections which allows us to copy a file to the web servers
+# This playbook introduces tags so that we can target specific task that we want to run
 
 # specifies that we want to run this on all the hosts
 - hosts: all
@@ -41,16 +41,6 @@
         - php
       state: latest
     when: ansible_distribution in ["CentOS"]
-
-  - name: Copy default html file for site
-    tags: apache,apache2,httpd
-    copy: # Copy module used to copy the file
-      src: default_site.html # NOTE: the 'files' directory is implied
-      dest: /var/www/html/index.html 
-      owner: root
-      group: root
-      mode: 0644 # File permissions
-
 
 - hosts: db_servers # Only run this for db_servers group
   become: true
