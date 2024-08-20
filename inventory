@@ -6,3 +6,8 @@
 
 [db_servers]
 192.168.76.11
+
+
+[workstations]
+192.168.76.7
+# NOTE: Above IP is the address of the machine on which I am running ansible. I am using this to configure my own machine to a specific standard using ansible.

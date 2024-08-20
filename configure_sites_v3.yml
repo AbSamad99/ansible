@@ -1,5 +1,5 @@
 ---
-# This playbook introduces a play which allows us to configure our own workstations
+# This playbook has sections which allows us to copy a file to the web servers
 
 # specifies that we want to run this on all the hosts
 - hosts: all
@@ -62,20 +62,8 @@
       state: latest
     when: ansible_distribution in ["Debian", "Ubuntu"]
 
-- hosts: workstations
-  become: true
-  tasks:
-  - name: Install unzip
-    apt:
-      name: unzip
-      state: latest
-    when: ansible_distribution in ["Debian", "Ubuntu"]
-  - name: Download and unzip terraform binary
-    become: true
-    unarchive:
-      src: https://releases.hashicorp.com/terraform/1.9.5/terraform_1.9.5_linux_amd64.zip
-      dest: /usr/local/bin
-      remote_src: yes
-      owner: root
-      group: root
-      mode: 0755
+# To list the tags in the playbook: ansible-playbook --list-tags playbook-name.yml
+# To target a specific tag: ansible-playbook --tags ubuntu --ask-become-pass playbook-name.yml
+# To target multiple tags: ansible-playbook --tags "ubuntu,centos" --ask-become-pass playbook-name.yml
+# NOTE: 1) All tasks with tag 'always' will always run
+#       2) You cannot have space between the tags when selecting multiple tags
