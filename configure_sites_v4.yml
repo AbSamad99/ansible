@@ -1,5 +1,5 @@
 ---
-# Adding a task which enables and starts the httpd server after it is installed. Also adding a tasks which make changes to the config file and restarts the server.
+# This playbook introduces a play which allows us to configure our own workstations
 
 # specifies that we want to run this on all the hosts
 - hosts: all
@@ -41,43 +41,16 @@
         - php
       state: latest
     when: ansible_distribution in ["CentOS"]
-    register: httpd
 
   - name: Copy default html file for site
     tags: apache,apache2,httpd
     copy: # Copy module used to copy the file
       src: default_site.html # NOTE: the 'files' directory is implied
-      dest: /var/www/html/index.html
+      dest: /var/www/html/index.html 
       owner: root
       group: root
       mode: 0644 # File permissions
 
-  # Starting the httpd server on CentOS
-  - name: Start httpd server (CentOs)
-    tags: centos,apache,httpd
-    service:
-      name: httpd
-      state: started # Specifies that we want to start the service
-      enabled: yes # Specifies that we want the service to persist upon reboot
-    when: ansible_distribution in ["CentOS"]
-
-  # Making changes to the configuration of httpd
-  - name: Change httpd config (CentOS)
-    tags: centos,apache,httpd
-    lineinfile: # This module changes the line in a file based on the regex
-      path: /etc/httpd/conf/httpd.conf
-      regex: '^ServerAdmin' # Select the line beginning with 'ServerAdmin'
-      line: ServerAdmin john@doe.net
-    when: ansible_distribution in ["CentOS"]
-    register: httpd # Register the change so that we can use it in the conditional to restart the server.
-
-  # Restarting the httpd server after configuration change
-  - name: Restart httpd server (CentOs)
-    tags: centos,apache,httpd
-    service:
-      name: httpd
-      state: restarted # Specifies that we want to start the service
-    when: httpd.changed
 
 - hosts: db_servers # Only run this for db_servers group
   become: true
