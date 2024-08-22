@@ -1,5 +1,5 @@
 ---
-# This playbook has same functionality as the previous version, with the change being that we only update the repository cache (Not Upgrade!!!). We also have a new task as a placeholder which we can use to remove keys if they ever get compromised.
+# Adding a task which enables and starts the httpd server after it is installed. Also adding a tasks which make changes to the config file and restarts the server.
 
 # specifies that we want to run this on all the hosts
 - hosts: all
@@ -9,20 +9,16 @@
   - name: Update apt repository
     tags: always # A tag specifying that we want to run this everytime.
     apt:
+      upgrade: dist
       update_cache: yes
     when: ansible_distribution in ["Debian", "Ubuntu"]
 
   - name: Update dnf repository
     tags: always
     dnf:
+      update_only: yes
       update_cache: yes
     when: ansible_distribution in ["CentOS"]
-
-  - name: Add key for this new user # To enable login via ssh using keys
-    tags: always
-    authorized_key:
-      user: zero
-      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKm2IKWawPXfyCIgdFu+uwCBv8FqCloGzKX7hMUSoOcy ansible"
 
 - hosts: web_servers # we only want to run this on the web_servers group
   become: true
@@ -110,5 +106,3 @@
       owner: root
       group: root
       mode: 0755
-
-# You should be able to run this without having to use the '--ask-become-key' provided you specifed the private key and remote user in ansible.cfg

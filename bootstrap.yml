@@ -1,0 +1,48 @@
+---
+# Playbook which has to be run prior to the rest of the playbooks. It creates a new user and copies the pub key and sudoers file
+
+# Update the systems
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Update apt repository
+    tags: always
+    apt:
+      upgrade: dist
+      update_cache: yes
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+  - name: Update dnf repository
+    tags: always
+    dnf:
+      update_only: yes
+      update_cache: yes
+    when: ansible_distribution in ["CentOS"]
+
+- hosts: all # All hosts should have this user
+  become: true
+  tasks:
+    - name: Add user named zero
+      tags: always
+      user:
+        name: zero
+        group: root
+
+    - name: Add key for this new user # To enable login via ssh using keys
+      tags: always
+      authorized_key:
+        user: zero
+        key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKm2IKWawPXfyCIgdFu+uwCBv8FqCloGzKX7hMUSoOcy ansible"
+
+    - name: Add sudoers file for the new user # Allows user to run sudo
+      tags: always
+      copy:
+        src: sudoers_zero
+        dest: /etc/sudoers.d/zero
+        owner: root
+        group: root
+        mode: 0440
+
+# To run this file: ansible-playbook --ask-become-pass playbook-name.yml
+# Note: If you are planning to set the ansible remote user (The one used to do the configuration) as this new 'zero' user, then while running the next playbook you do not need to specify '--ask-become-pass' provided you set 'remote_user=zero' in ansible.cfg
