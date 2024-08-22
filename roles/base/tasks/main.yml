@@ -1,0 +1,6 @@
+# Task to add the ssh key
+- name: Add key for this new user
+  tags: always
+  authorized_key:
+     user: zero
+     key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKm2IKWawPXfyCIgdFu+uwCBv8FqCloGzKX7hMUSoOcy ansible"

@@ -1,0 +1,114 @@
+---
+# This playbook has same functionality as the previous version, with the change being that we only update the repository cache (Not Upgrade!!!). We also have a new task as a placeholder which we can use to remove keys if they ever get compromised.
+
+# specifies that we want to run this on all the hosts
+- hosts: all
+  become: true
+  pre_tasks:
+
+  - name: Update apt repository
+    tags: always # A tag specifying that we want to run this everytime.
+    apt:
+      update_cache: yes
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+  - name: Update dnf repository
+    tags: always
+    dnf:
+      update_cache: yes
+    when: ansible_distribution in ["CentOS"]
+
+  - name: Add key for this new user # To enable login via ssh using keys
+    tags: always
+    authorized_key:
+      user: zero
+      key: "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKm2IKWawPXfyCIgdFu+uwCBv8FqCloGzKX7hMUSoOcy ansible"
+
+- hosts: web_servers # we only want to run this on the web_servers group
+  become: true
+  tasks:
+
+  - name: Install apache2 and php support (Ubuntu)
+    tags: ubuntu,apache,apache2
+    apt:
+      name:
+        - apache2
+        - libapache2-mod-php
+      state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+  - name: Install httpd and php
+    tags: centos,apache,httpd
+    dnf:
+      name:
+        - httpd
+        - php
+      state: latest
+    when: ansible_distribution in ["CentOS"]
+    register: httpd
+
+  - name: Copy default html file for site
+    tags: apache,apache2,httpd
+    copy: # Copy module used to copy the file
+      src: default_site.html # NOTE: the 'files' directory is implied
+      dest: /var/www/html/index.html
+      owner: root
+      group: root
+      mode: 0644 # File permissions
+
+  # Starting the httpd server on CentOS
+  - name: Start httpd server (CentOs)
+    tags: centos,apache,httpd
+    service:
+      name: httpd
+      state: started # Specifies that we want to start the service
+      enabled: yes # Specifies that we want the service to persist upon reboot
+    when: ansible_distribution in ["CentOS"]
+
+  # Making changes to the configuration of httpd
+  - name: Change httpd config (CentOS)
+    tags: centos,apache,httpd
+    lineinfile: # This module changes the line in a file based on the regex
+      path: /etc/httpd/conf/httpd.conf
+      regex: '^ServerAdmin' # Select the line beginning with 'ServerAdmin'
+      line: ServerAdmin john@doe.net
+    when: ansible_distribution in ["CentOS"]
+    register: httpd # Register the change so that we can use it in the conditional to restart the server.
+
+  # Restarting the httpd server after configuration change
+  - name: Restart httpd server (CentOs)
+    tags: centos,apache,httpd
+    service:
+      name: httpd
+      state: restarted # Specifies that we want to start the service
+    when: httpd.changed
+
+- hosts: db_servers # Only run this for db_servers group
+  become: true
+  tasks:
+  - name: Install mariadb (Debian)
+    tags: ubuntu,db,mariadb
+    apt:
+      name: mariadb-server
+      state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+
+- hosts: workstations
+  become: true
+  tasks:
+  - name: Install unzip
+    apt:
+      name: unzip
+      state: latest
+    when: ansible_distribution in ["Debian", "Ubuntu"]
+  - name: Download and unzip terraform binary
+    become: true
+    unarchive:
+      src: https://releases.hashicorp.com/terraform/1.9.5/terraform_1.9.5_linux_amd64.zip
+      dest: /usr/local/bin
+      remote_src: yes
+      owner: root
+      group: root
+      mode: 0755
+
+# You should be able to run this without having to use the '--ask-become-key' provided you specifed the private key and remote user in ansible.cfg
