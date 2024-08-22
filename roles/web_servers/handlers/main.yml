@@ -1,5 +1,5 @@
   - name: restart_apache # The name should be same as the one we specified for the 'register' property.
     tags: centos,apache,httpd
     service:
-      name: "{{ apache_service }}"
+      name: "{{ apache_service_name }}"
       state: restarted

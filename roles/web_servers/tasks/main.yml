@@ -20,7 +20,7 @@
   - name: Start httpd server
     tags: apache2,httpd
     service:
-      name: "{{ apache_package_name }}"
+      name: "{{ apache_service_name }}"
       state: started 
       enabled: yes
 
